@@ -1,0 +1,40 @@
+version: '3.16'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+      - db_conf:/etc/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=bank
+    networks:
+      - nestjs-network
+
+  api:
+    container_name: konv_dev
+    image: konv-dev:1.0.0
+    build:
+      context: .
+      target: development
+      dockerfile: ./Dockerfile
+    command: npm run start:dev
+    ports:
+      - 3000:3000
+    networks:
+      - nestjs-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+
+networks:
+  nestjs-network:
+    driver: bridge
+
+volumes:
+    db_data:
+    db_conf:
